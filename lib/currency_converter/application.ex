@@ -8,8 +8,7 @@ defmodule CurrencyConverter.Application do
   @impl true
   def start(_type, _args) do
     children = [
-      # Starts a worker by calling: CurrencyConverter.Worker.start_link(arg)
-      # {CurrencyConverter.Worker, arg}
+      CurrencyConverter.ExchangeRateCache
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

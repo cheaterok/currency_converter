@@ -24,6 +24,7 @@ defmodule CurrencyConverter.MixProject do
     [
       {:httpoison, "~> 1.7"},
       {:jason, "~> 1.2"},
+      {:cachex, "~> 3.3"},
       {:dialyxir, "~> 1.0", only: [:dev], runtime: false},
       {:credo, "~> 1.5", only: [:dev, :test], runtime: false}
     ]
