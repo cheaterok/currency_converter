@@ -4,7 +4,7 @@ defmodule CurrencyConverter.CBRClient do
   @base_url "https://www.cbr-xml-daily.ru"
 
   @spec request_exchange_rates(Date.t()) ::
-          {:ok, CurrencyConverter.exchange_rate_map()}
+          {:ok, CurrencyConverter.exchange_rates_map()}
           | {:error, :request_error | :json_decode_error | :parsing_error}
   def request_exchange_rates(date) do
     request_url = request_url_for_date(date)

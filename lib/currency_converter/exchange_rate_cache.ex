@@ -6,18 +6,18 @@ defmodule CurrencyConverter.ExchangeRateCache do
 
   @spec child_spec([]) :: Supervisor.child_spec()
   def child_spec([]) do
-    Cachex.child_spec([
+    Cachex.child_spec(
       name: @cache_name,
       expiration: Cachex.Spec.expiration(default: @default_ttl)
-    ])
+    )
   end
 
-  @spec get(Date.t()) :: nil | CurrencyConverter.exchange_rate_map()
+  @spec get(Date.t()) :: nil | CurrencyConverter.exchange_rates_map()
   def get(date) do
     Cachex.get!(@cache_name, date)
   end
 
-  @spec put(Date.t(), CurrencyConverter.exchange_rate_map()) :: :ok
+  @spec put(Date.t(), CurrencyConverter.exchange_rates_map()) :: :ok
   def put(date, value) do
     Cachex.put!(@cache_name, date, value)
   end
