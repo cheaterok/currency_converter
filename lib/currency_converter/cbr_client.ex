@@ -41,15 +41,22 @@ defmodule CurrencyConverter.CBRClient do
 end
 
 defmodule CurrencyConverter.CBRClient.Parser do
-  def parse_data(%{"Valute" => valutes}) do
-    try do
-      {:ok, Map.new(valutes, &parse_valute/1)}
-    catch
-      :bad_valute_rate -> {:error, :bad_data}
+  def parse_data(data) do
+    with {:ok, valutes} <- Map.fetch(data, "Valute"),
+         {:ok, parsed_valutes} <- parse_valutes(valutes) do
+      {:ok, parsed_valutes}
+    else
+      _ -> {:error, :bad_data}
     end
   end
 
-  def parse_data(_data), do: {:error, :bad_data}
+  def parse_valutes(valutes) do
+    try do
+      {:ok, Map.new(valutes, &parse_valute/1)}
+    catch
+      :bad_valute_rate -> :error
+    end
+  end
 
   defp parse_valute({currency_iso, valute_data}) do
     valute_rate = parse_valute_rate(valute_data)
