@@ -2,7 +2,7 @@ version: "3.9"
 services:
     app:
         build: .
-        image: currency_converter:latest
+        image: currency_converter:${IMAGE_TAG}
         working_dir: /app
         depends_on:
             - postgres
