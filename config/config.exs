@@ -10,3 +10,5 @@ config :currency_converter, CurrencyConverter.ConversionHistory.Repo,
   username: "postgres",
   password: "secure_password",
   hostname: "postgres"
+
+import_config "#{Mix.env()}.exs"

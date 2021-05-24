@@ -21,4 +21,11 @@ defmodule CurrencyConverter.ExchangeRateCache do
   def put(date, value) do
     Cachex.put!(@cache_name, date, value)
   end
+
+  if Mix.env() == :test do
+    @spec clear() :: :ok
+    def clear() do
+      Cachex.clear!(@cache_name)
+    end
+  end
 end
