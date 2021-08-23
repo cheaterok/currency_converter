@@ -12,7 +12,7 @@ run: build
 	IMAGE_TAG=$(IMAGE_TAG) docker-compose run --rm app iex -S mix do ecto.create, ecto.migrate, run
 
 test: build-testing
-	IMAGE_TAG=$(TESTING_IMAGE_TAG) docker-compose run --rm app mix test
+	IMAGE_TAG=$(TESTING_IMAGE_TAG) docker-compose run --rm app sh -c "sleep 1 && mix test"
 
 teardown:
 	IMAGE_TAG= docker-compose down
