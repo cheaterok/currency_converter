@@ -1,5 +1,4 @@
 defmodule CurrencyConverter.CBRClient do
-  alias __MODULE__.Parser
 
   @base_url "https://www.cbr-xml-daily.ru"
 
@@ -12,7 +11,8 @@ defmodule CurrencyConverter.CBRClient do
     with {_, {:ok, response}} <- {:request, HTTPoison.get(request_url)},
          %HTTPoison.Response{body: body} = response,
          {_, {:ok, data}} <- {:json, Jason.decode(body)},
-         {_, {:ok, parsed_data}} <- {:parsing, Parser.parse_data(data)} do
+         {_, {:ok, parsed_data}} <- {:parsing, __MODULE__.Parser.parse_data(data)}
+    do
       {:ok, parsed_data}
     else
       {error_stage, _error} ->
@@ -41,28 +41,46 @@ defmodule CurrencyConverter.CBRClient do
 end
 
 defmodule CurrencyConverter.CBRClient.Parser do
+  # JSON example
+  _ = """
+  {
+    "Valute": {
+        "AUD": {
+            "Value": 53.0613,
+        },
+        "AZN": {
+            "Value": 43.5942,
+        },
+        ...
+    }
+  }
+  """
+
+  @spec parse_data(map()) :: {:ok, CurrencyConverter.exchange_rates_map()} | :error
   def parse_data(data) do
-    with {:ok, valutes} <- Map.fetch(data, "Valute"),
-         {:ok, parsed_valutes} <- parse_valutes(valutes) do
-      {:ok, parsed_valutes}
+    with %{"Valute" => valutes} <- data,
+         {:ok, result} <- parse_valutes(valutes)
+    do
+      {:ok, result}
     else
-      _ -> {:error, :bad_data}
+      _ -> :error
     end
   end
 
-  def parse_valutes(valutes) do
-    try do
-      {:ok, Map.new(valutes, &parse_valute/1)}
-    catch
-      :bad_valute_rate -> :error
+  defp parse_valutes(valutes) do
+    reducer = fn element, acc ->
+      case element do
+        {name, %{"Value" => value}} when is_float(value) ->
+          {:cont, Map.put(acc, name, value)}
+        _ ->
+          {:halt, :error}
+      end
+    end
+    result = Enum.reduce_while(valutes, %{}, reducer)
+
+    case result do
+      :error -> :error
+      map -> {:ok, map}
     end
   end
-
-  defp parse_valute({currency_iso, valute_data}) do
-    valute_rate = parse_valute_rate(valute_data)
-    {currency_iso, valute_rate}
-  end
-
-  defp parse_valute_rate(%{"Value" => value}) when is_float(value), do: value
-  defp parse_valute_rate(_data), do: throw(:bad_valute_rate)
 end
